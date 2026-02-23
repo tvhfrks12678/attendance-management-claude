@@ -1,7 +1,7 @@
 # 概要
 - 出勤管理サイト
 - AIにコードを書かせて実装（Claude Codeを使用）
-  
+
 <img width="250" height="810" alt="スクリーンショット 2026-02-23 19 51 13" src="https://github.com/user-attachments/assets/b99ce4b2-67a0-4f7f-9296-73781f0a79be" />
 
 # URL
@@ -14,7 +14,204 @@
 - インフラ: Cloudflare Workers
 
 
-Welcome to your new TanStack Start app! 
+# ディレクトリ構成
+
+```
+attendance-management-claude/
+├── src/
+│   ├── components/
+│   │   └── ui/                        # shadcn/ui 共通UIコンポーネント
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── badge.tsx
+│   │       ├── table.tsx
+│   │       ├── dialog.tsx
+│   │       └── separator.tsx
+│   │
+│   ├── features/
+│   │   └── attendance/                # 出勤管理機能（ヘキサゴナルアーキテクチャ）
+│   │       │
+│   │       ├── contracts/             # API契約（唯一の真実）
+│   │       │   └── attendance.ts      # zod schema + リクエスト/レスポンス型定義
+│   │       │
+│   │       ├── domain/                # フレームワーク完全非依存
+│   │       │   ├── entities/
+│   │       │   │   └── attendance.ts  # AttendanceDay, AttendanceStatus 等の内部型
+│   │       │   ├── logic/
+│   │       │   │   ├── attendance.ts  # canClockIn / canClockOut / getStatus（純粋関数）
+│   │       │   │   ├── attendance.test.ts
+│   │       │   │   ├── worktime.ts    # calculateWorkDuration / formatDuration（純粋関数）
+│   │       │   │   └── worktime.test.ts
+│   │       │   └── ports/
+│   │       │       ├── attendanceRepository.ts  # interface AttendanceRepository
+│   │       │       └── clock.ts                 # interface Clock（時刻抽象化）
+│   │       │
+│   │       ├── application/           # フレームワーク非依存
+│   │       │   └── services/
+│   │       │       └── attendanceService.ts  # ユースケース実行（clockIn/clockOut等）
+│   │       │
+│   │       ├── infrastructure/        # 外部依存の実装
+│   │       │   ├── repositories/
+│   │       │   │   ├── inMemoryAttendanceRepository.ts  # インメモリ実装（現在使用中）
+│   │       │   │   └── drizzleAttendanceRepository.ts   # Turso + Drizzle 実装（将来用）
+│   │       │   ├── clock/
+│   │       │   │   └── systemClock.ts   # Clock interface の実装（実時刻を返す）
+│   │       │   ├── data/
+│   │       │   │   └── attendanceData.ts  # ベタ書き初期データ（過去の履歴）
+│   │       │   ├── db/
+│   │       │   │   ├── client.ts    # Turso 接続設定（将来用）
+│   │       │   │   └── schema.ts    # Drizzle スキーマ定義（将来用）
+│   │       │   ├── getRepository.ts  # リポジトリ実装の切り替えポイント
+│   │       │   └── getClock.ts       # Clock実装の切り替えポイント
+│   │       │
+│   │       ├── presentation/          # React UI
+│   │       │   ├── hooks/
+│   │       │   │   └── useAttendance.ts  # TanStack Query による API 呼び出し
+│   │       │   ├── parts/
+│   │       │   │   ├── StatusCard.tsx    # ステータス表示（未出勤/勤務中/退勤済み）
+│   │       │   │   ├── ClockButton.tsx   # 出勤/退勤ボタン（確認ダイアログ付き）
+│   │       │   │   ├── WorkSummary.tsx   # 今日の勤務時間サマリー
+│   │       │   │   ├── HistoryTable.tsx  # 勤怠履歴テーブル
+│   │       │   │   └── CurrentTime.tsx   # 現在時刻のリアルタイム表示（1秒更新）
+│   │       │   └── AttendancePage.tsx    # ページ全体の組み立て
+│   │       │
+│   │       └── server-fns/            # TanStack Start サーバー関数（APIエンドポイント）
+│   │           ├── today.ts           # GET  /api/attendance/today
+│   │           ├── clock-in.ts        # POST /api/attendance/clock-in
+│   │           ├── clock-out.ts       # POST /api/attendance/clock-out
+│   │           └── history.ts         # GET  /api/attendance/history
+│   │
+│   ├── routes/
+│   │   ├── __root.tsx   # ルートレイアウト（Header等の共通UI）
+│   │   └── index.tsx    # ルートページ（AttendancePage をマウント）
+│   │
+│   └── router.tsx       # TanStack Router 設定
+│
+├── prompts/
+│   ├── attendance-instructions.md  # Claude Code 向け実装指示書
+│   └── attendance-spec.md          # 実装仕様書（API仕様・型定義・UIイメージ等）
+│
+├── wrangler.jsonc       # Cloudflare Workers デプロイ設定
+└── package.json
+```
+
+## アーキテクチャの考え方
+
+ヘキサゴナルアーキテクチャ（ポート＆アダプターパターン）を採用し、ビジネスロジックとフレームワーク依存を明確に分離しています。
+
+| 層 | ディレクトリ | 役割 |
+|---|---|---|
+| ドメイン層 | `domain/` | フレームワーク完全非依存。打刻の可否判定・勤務時間計算などの純粋な業務ロジック |
+| アプリケーション層 | `application/` | フレームワーク非依存。ユースケースの実行（リポジトリ取得→ロジック適用→結果返却） |
+| インフラ層 | `infrastructure/` | 外部依存の実装。現在はインメモリ。将来は Turso + Drizzle に差し替え可能 |
+| プレゼンテーション層 | `presentation/` | React UI。APIを TanStack Query で叩くだけで、ビジネスロジックに直接触らない |
+| API契約 | `contracts/` | zod schema で定義されたリクエスト/レスポンス型。クライアント・サーバー共有の唯一の真実 |
+
+
+# 処理の流れ
+
+## 画面表示〜打刻までの全体フロー
+
+```
+ユーザー操作                  クライアント                      サーバー（server-fns）
+─────────────────────────────────────────────────────────────────────────────────────
+                              index.tsx
+                                 │
+                                 ▼
+1. ページアクセス          AttendancePage
+                                 │ useAttendance (TanStack Query)
+                                 │ GET /api/attendance/today ───────► today.ts
+                                 │                                       │ attendanceService.getToday()
+                                 │                                       │   ├─ getRepository() → InMemoryRepo
+                                 │                                       │   ├─ getClock()       → SystemClock
+                                 │                                       │   └─ repo.getToday(date)
+                                 │ ◄── { status, clockIn, … } ──────────┘
+                                 │
+                                 ▼
+2. ステータスに応じた表示   StatusCard  ← 未出勤/勤務中/退勤済みを表示
+                            ClockButton ← ステータスに応じてボタン切り替え
+                            WorkSummary ← 勤務時間サマリー
+                            CurrentTime ← 1秒ごとに現在時刻更新
+                                 │
+                                 │ GET /api/attendance/history ─────► history.ts
+                                 │                                       │ attendanceService.getHistory()
+                                 │                                       │   └─ repo.getHistory()
+                                 │ ◄── { records: [...] } ───────────────┘
+                                 │
+                                 ▼
+3. 出勤ボタン押下          確認ダイアログ表示
+       │
+       │（確認）
+       ▼
+                                 │ POST /api/attendance/clock-in ───► clock-in.ts
+                                 │                                       │ attendanceService.clockIn()
+                                 │                                       │   ├─ repo.getToday()
+                                 │                                       │   ├─ canClockIn(today) ← domain ロジック
+                                 │                                       │   ├─ clock.now()       ← SystemClock
+                                 │                                       │   └─ repo.save(updated)
+                                 │ ◄── { success: true, clockIn } ───────┘
+                                 │
+                                 ▼
+4. 退勤ボタン押下          確認ダイアログ表示
+       │
+       │（確認）
+       ▼
+                                 │ POST /api/attendance/clock-out ──► clock-out.ts
+                                 │                                       │ attendanceService.clockOut()
+                                 │                                       │   ├─ repo.getToday()
+                                 │                                       │   ├─ canClockOut(today) ← domain ロジック
+                                 │                                       │   ├─ clock.now()
+                                 │                                       │   ├─ calculateWorkDuration() ← domain ロジック
+                                 │                                       │   └─ repo.save(updated)
+                                 │ ◄── { success: true, workMinutes } ───┘
+                                 │
+                                 ▼
+                         画面を再取得（invalidateQueries）→ ステータス更新
+```
+
+## ドメインロジックの処理フロー
+
+```
+打刻リクエスト受信（clock-in.ts / clock-out.ts）
+        │
+        ▼
+attendanceService.clockIn() / attendanceService.clockOut()
+        │
+        ├─ 1. repo.getToday(dateStr) で今日の勤怠レコードを取得
+        │
+        ├─ 2. domain/logic/attendance.ts で打刻可否を判定
+        │       canClockIn(today)  → 未出勤(not_started) のときだけ true
+        │       canClockOut(today) → 勤務中(working) のときだけ true
+        │
+        ├─ 3. clock.now() でサーバー時刻を取得（クライアント時刻は使わない）
+        │
+        ├─ 4. レコードを更新
+        │       clockIn:  status → "working",  clockIn = now
+        │       clockOut: status → "finished", clockOut = now, workMinutes = 計算値
+        │
+        ├─ 5. domain/logic/worktime.ts で勤務時間を計算（退勤時のみ）
+        │       calculateWorkDuration(clockIn, clockOut) → WorkDuration
+        │
+        └─ 6. repo.save(updated) で保存し、結果を返す
+```
+
+## データの永続化（現在 → 将来）
+
+```
+現在（インメモリ）                    将来（Turso + Drizzle ORM）
+──────────────────────                ──────────────────────────
+infrastructure/
+  getRepository.ts                      getRepository.ts
+    └─ new InMemoryRepo()                 └─ new DrizzleRepo(client)
+                                                    │
+  repositories/                          repositories/
+    inMemoryAttendanceRepository.ts ─►     drizzleAttendanceRepository.ts
+    （メモリ上に保持、再起動でリセット）   （Turso SQLite に永続化）
+
+※ domain/ application/ presentation/ contracts/ は変更不要
+※ getRepository.ts の切り替え1行だけで移行完了
+```
+
 
 # Getting Started
 
@@ -45,19 +242,9 @@ pnpm test
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
-
 ## Linting & Formatting
 
 This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
 
 ```bash
 pnpm lint
@@ -65,162 +252,9 @@ pnpm format
 pnpm check
 ```
 
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
-```
-
-
-
 ## Routing
 
 This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
 
 # Learn More
 
