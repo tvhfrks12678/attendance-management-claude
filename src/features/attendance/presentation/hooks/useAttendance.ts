@@ -3,6 +3,8 @@ import { fetchHistory } from "../../server-fns/history"
 import { fetchToday } from "../../server-fns/today"
 import { postClockIn } from "../../server-fns/clock-in"
 import { postClockOut } from "../../server-fns/clock-out"
+import { postBreakStart } from "../../server-fns/break-start"
+import { postBreakEnd } from "../../server-fns/break-end"
 
 export const QUERY_KEYS = {
 	today: ["attendance", "today"] as const,
@@ -37,6 +39,26 @@ export function useClockOut() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: () => postClockOut(),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ["attendance"] })
+		},
+	})
+}
+
+export function useStartBreak() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: () => postBreakStart(),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ["attendance"] })
+		},
+	})
+}
+
+export function useEndBreak() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: () => postBreakEnd(),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ["attendance"] })
 		},

@@ -20,6 +20,11 @@ const statusConfig = {
 		variant: "default" as const,
 		cardClass: "border-green-400 bg-green-50",
 	},
+	on_break: {
+		label: "☕ 休憩中",
+		variant: "secondary" as const,
+		cardClass: "border-yellow-400 bg-yellow-50",
+	},
 	finished: {
 		label: "✅ 退勤済み",
 		variant: "outline" as const,

@@ -28,6 +28,14 @@ export function WorkSummary({ record }: WorkSummaryProps) {
 					<span className="font-medium">{formatTime(record.clockOut)}</span>
 				</div>
 			)}
+			{record.breakMinutes !== null && record.breakMinutes > 0 && (
+				<div className="flex justify-between">
+					<span className="text-muted-foreground">休憩時間</span>
+					<span className="font-medium text-yellow-700">
+						{formatDuration(record.breakMinutes)}
+					</span>
+				</div>
+			)}
 			{record.workMinutes !== null && (
 				<div className="flex justify-between">
 					<span className="text-muted-foreground">勤務時間</span>

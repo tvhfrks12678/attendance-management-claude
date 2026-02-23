@@ -9,6 +9,8 @@ let todayRecord: AttendanceDay = {
 	clockIn: null,
 	clockOut: null,
 	workMinutes: null,
+	breaks: [],
+	breakMinutes: null,
 }
 
 export class InMemoryAttendanceRepository implements AttendanceRepository {
@@ -20,13 +22,21 @@ export class InMemoryAttendanceRepository implements AttendanceRepository {
 				clockIn: null,
 				clockOut: null,
 				workMinutes: null,
+				breaks: [],
+				breakMinutes: null,
 			}
 		}
-		return { ...todayRecord }
+		return {
+			...todayRecord,
+			breaks: todayRecord.breaks.map((b) => ({ ...b })),
+		}
 	}
 
 	async save(record: AttendanceDay): Promise<void> {
-		todayRecord = { ...record }
+		todayRecord = {
+			...record,
+			breaks: record.breaks.map((b) => ({ ...b })),
+		}
 	}
 
 	async getHistory(): Promise<AttendanceDay[]> {

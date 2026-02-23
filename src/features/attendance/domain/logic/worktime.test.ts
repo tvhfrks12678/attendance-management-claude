@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { calculateWorkDuration, formatDuration } from "./worktime"
+import { calculateTotalBreakMinutes, calculateWorkDuration, formatDuration } from "./worktime"
 
 describe("calculateWorkDuration", () => {
 	it("9:00〜18:00 → 540分", () => {
@@ -28,6 +28,43 @@ describe("calculateWorkDuration", () => {
 			new Date("2026-02-23T01:00:00+09:00"),
 		)
 		expect(result.totalMinutes).toBe(120)
+	})
+})
+
+describe("calculateTotalBreakMinutes", () => {
+	it("休憩なし → 0分", () => {
+		expect(calculateTotalBreakMinutes([])).toBe(0)
+	})
+
+	it("1回の休憩 60分", () => {
+		const breaks = [
+			{
+				breakStart: new Date("2026-02-23T12:00:00+09:00"),
+				breakEnd: new Date("2026-02-23T13:00:00+09:00"),
+			},
+		]
+		expect(calculateTotalBreakMinutes(breaks)).toBe(60)
+	})
+
+	it("2回の休憩 合計90分", () => {
+		const breaks = [
+			{
+				breakStart: new Date("2026-02-23T10:00:00+09:00"),
+				breakEnd: new Date("2026-02-23T10:30:00+09:00"),
+			},
+			{
+				breakStart: new Date("2026-02-23T12:00:00+09:00"),
+				breakEnd: new Date("2026-02-23T13:00:00+09:00"),
+			},
+		]
+		expect(calculateTotalBreakMinutes(breaks)).toBe(90)
+	})
+
+	it("休憩中（breakEnd が null）は now を使って計算する", () => {
+		const start = new Date("2026-02-23T12:00:00+09:00")
+		const now = new Date("2026-02-23T12:30:00+09:00")
+		const breaks = [{ breakStart: start, breakEnd: null }]
+		expect(calculateTotalBreakMinutes(breaks, now)).toBe(30)
 	})
 })
 
