@@ -1,4 +1,4 @@
-import type { WorkDuration } from "../entities/attendance"
+import type { BreakPeriod, WorkDuration } from "../entities/attendance"
 
 export function calculateWorkDuration(clockIn: Date, clockOut: Date): WorkDuration {
 	const totalMinutes = Math.floor((clockOut.getTime() - clockIn.getTime()) / 60000)
@@ -7,6 +7,14 @@ export function calculateWorkDuration(clockIn: Date, clockOut: Date): WorkDurati
 		minutes: totalMinutes % 60,
 		totalMinutes,
 	}
+}
+
+export function calculateTotalBreakMinutes(breaks: BreakPeriod[], now?: Date): number {
+	return breaks.reduce((total, b) => {
+		const end = b.breakEnd ?? now ?? new Date()
+		const minutes = Math.floor((end.getTime() - b.breakStart.getTime()) / 60000)
+		return total + Math.max(0, minutes)
+	}, 0)
 }
 
 export function formatDuration(minutes: number): string {

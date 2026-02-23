@@ -8,6 +8,14 @@ export function canClockOut(today: AttendanceDay): boolean {
 	return today.status === "working"
 }
 
+export function canStartBreak(today: AttendanceDay): boolean {
+	return today.status === "working"
+}
+
+export function canEndBreak(today: AttendanceDay): boolean {
+	return today.status === "on_break"
+}
+
 export function getStatus(today: AttendanceDay): AttendanceStatus {
 	return today.status
 }
