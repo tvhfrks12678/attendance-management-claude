@@ -1,3 +1,19 @@
+# 概要
+- 出勤管理サイト
+- AIにコードを書かせて実装（Claude Codeを使用）
+  
+<img width="250" height="810" alt="スクリーンショット 2026-02-23 19 51 13" src="https://github.com/user-attachments/assets/b99ce4b2-67a0-4f7f-9296-73781f0a79be" />
+
+# URL
+- [出勤管理](https://attendance-management-claude.tvhfrks12678.workers.dev/)
+
+# 技術スタック
+- 言語: TypeScript
+- フレームワーク: TanStack Start（React 19）
+- UI: shadcn/ui + Tailwind CSS v4
+- インフラ: Cloudflare Workers
+
+
 Welcome to your new TanStack Start app! 
 
 # Getting Started
