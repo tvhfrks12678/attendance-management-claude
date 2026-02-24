@@ -13,6 +13,9 @@ let todayRecord: AttendanceDay = {
 	breakMinutes: null,
 }
 
+// 退勤済みレコードを保持するマップ（日付 → レコード）
+const savedHistory: Map<string, AttendanceDay> = new Map()
+
 export class InMemoryAttendanceRepository implements AttendanceRepository {
 	async getToday(date: string): Promise<AttendanceDay> {
 		if (todayRecord.date !== date) {
@@ -37,9 +40,22 @@ export class InMemoryAttendanceRepository implements AttendanceRepository {
 			...record,
 			breaks: record.breaks.map((b) => ({ ...b })),
 		}
+		if (record.status === "finished") {
+			savedHistory.set(record.date, {
+				...record,
+				breaks: record.breaks.map((b) => ({ ...b })),
+			})
+		}
 	}
 
 	async getHistory(): Promise<AttendanceDay[]> {
-		return [...initialHistory]
+		const allRecords = new Map<string, AttendanceDay>()
+		for (const r of initialHistory) {
+			allRecords.set(r.date, r)
+		}
+		for (const [date, r] of savedHistory) {
+			allRecords.set(date, r)
+		}
+		return [...allRecords.values()].sort((a, b) => b.date.localeCompare(a.date))
 	}
 }
