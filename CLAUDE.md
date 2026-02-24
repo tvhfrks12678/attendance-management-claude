@@ -88,3 +88,26 @@ Follow Conventional Commits format:
 - 必要に応じて空行の後に本文を追加する
 - GitHub Issue に基づくタスクの場合、description の末尾に `#<issue番号>` を付ける
 - Issue がないタスク（設定変更等）では issue 番号は不要
+
+## 権限の永続化ルール
+
+When the user selects "Yes, allow all during this session" for any permission prompt,
+add that permission rule to `.claude/settings.json` under `permissions.allow` so it
+persists across sessions.
+
+Example: if "Yes, allow all during this session" is selected for `Bash(cat:*)`,
+update `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}
+```
+
+Always commit this change: `chore(claude): add <permission> to settings.json`
