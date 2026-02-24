@@ -52,7 +52,8 @@
       "Bash(curl:*)",
       "Bash(kill:*)",
       "Bash(pkill:*)",
-      "Bash(brew:*)"
+      "Bash(brew:*)",
+      "Edit"
     ]
   }
 }
