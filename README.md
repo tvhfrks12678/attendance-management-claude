@@ -41,6 +41,46 @@ chore(claude): [00:05:00] add pr-required rule as task completion definition
 ```
 
 
+## Browser/Playwright MCP（UI検証）の設定
+
+打刻ボタン、履歴テーブル、現在時刻表示などの **実ブラウザ検証** を行えるように、
+このリポジトリに MCP サーバー設定を追加しました。
+
+### 追加した設定
+
+- `.mcp.json`
+  - `browser-playwright` サーバーを定義
+  - `npx -y @playwright/mcp@latest --browser chromium --headless` で起動
+- `package.json` scripts
+  - `pnpm run mcp:browser`（headless）
+  - `pnpm run mcp:browser:headed`（headed）
+
+### 使い方
+
+1. 開発サーバーを起動
+
+```bash
+pnpm dev
+```
+
+2. MCP サーバーを起動
+
+```bash
+pnpm run mcp:browser
+```
+
+3. MCP 対応クライアント（Claude Code / Codex / Cursor など）で
+   `browser-playwright` サーバーに接続して UI 検証を実施
+
+### 確認観点の例
+
+- 打刻ボタン（出勤 / 退勤）がクリックできるか
+- 履歴テーブルが正しく表示されるか
+- 現在時刻表示が崩れずに更新されるか
+- スマホ幅でレイアウト崩れがないか
+
+
+
 # ディレクトリ構成
 
 ```

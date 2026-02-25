@@ -56,5 +56,17 @@
       "Edit",
       "Write"
     ]
+  },
+  "mcpServers": {
+    "browser-playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--browser",
+        "chromium",
+        "--headless"
+      ]
+    }
   }
 }

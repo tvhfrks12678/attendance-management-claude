@@ -13,7 +13,9 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "deploy": "pnpm run build && wrangler deploy"
+    "deploy": "pnpm run build && wrangler deploy",
+    "mcp:browser": "npx -y @playwright/mcp@latest --browser chromium --headless",
+    "mcp:browser:headed": "npx -y @playwright/mcp@latest --browser chromium"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
