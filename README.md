@@ -14,6 +14,32 @@
 - 関数型プログラミング: Effect-ts
 - インフラ: Cloudflare Workers
 
+## AIエージェント向け: Vercel React Best Practices Skill の導入
+
+`react-best-practices` をエージェントで使う場合は、以下のコマンドで Agent Skills を追加します。
+
+```bash
+npx skills add vercel-labs/agent-skills
+```
+
+導入後、Codex / Claude Code / Cursor などで React レビュー時に、
+ウォーターフォール削減・バンドルサイズ最適化・再レンダー抑制のルールを参照できるようになります。
+
+### 運用ルール（コミット・PR）
+
+- 作業完了は **PR作成まで** を含む（実装＋コミットだけで終了しない）
+- コミットメッセージは作業時間を含む形式にする
+
+```text
+chore(claude): [00:05:00] add pr-required rule as task completion definition
+```
+
+フォーマット:
+
+```text
+<type>(<scope>): [HH:MM:SS] <description>
+```
+
 
 # ディレクトリ構成
 
