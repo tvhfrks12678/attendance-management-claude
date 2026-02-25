@@ -205,7 +205,7 @@ TypeScript は「AlreadyClockedInError を処理していない」とコンパ�
 // Effect<SuccessData, AlreadyClockedInError | NotWorkingError> になる
 Effect.flatMap(record =>
   canClockIn(record) ? Effect.succeed(record)
-  : canDoSomething(record) ? Effect.fail({ _tag: "NotWorkingError" } as const)
+  : canDoSomething(record) ? Effect.fail({ _tag: "NotWorking" } as const)
   : Effect.fail({ _tag: "AlreadyClockedIn" } as const)
 )
 ```
