@@ -146,6 +146,8 @@ attendance-management-claude/
 │   │           ├── today.ts           # GET  /api/attendance/today
 │   │           ├── clock-in.ts        # POST /api/attendance/clock-in
 │   │           ├── clock-out.ts       # POST /api/attendance/clock-out
+│   │           ├── break-start.ts     # POST /api/attendance/break-start
+│   │           ├── break-end.ts       # POST /api/attendance/break-end
 │   │           └── history.ts         # GET  /api/attendance/history
 │   │
 │   ├── routes/
@@ -154,11 +156,22 @@ attendance-management-claude/
 │   │
 │   └── router.tsx       # TanStack Router 設定
 │
+├── e2e/
+│   └── attendance.spec.ts          # Playwright E2E テスト
+│
+├── docs/
+│   ├── effect-ts/                  # Effect.ts 段階的導入ログ（Option / pipe / Effect）
+│   ├── di/                         # 依存性注入パターン解説
+│   ├── hexagonal-architecture/     # ヘキサゴナルアーキテクチャ処理フロー解説
+│   └── test/                       # テスト解説（Vitest / React Testing Library / Playwright）
+│
 ├── prompts/
 │   ├── attendance-instructions.md  # Claude Code 向け実装指示書
 │   └── attendance-spec.md          # 実装仕様書（API仕様・型定義・UIイメージ等）
 │
-├── wrangler.jsonc       # Cloudflare Workers デプロイ設定
+├── playwright.config.ts  # Playwright 設定
+├── vitest.config.ts      # Vitest 設定
+├── wrangler.jsonc        # Cloudflare Workers デプロイ設定
 └── package.json
 ```
 
@@ -299,11 +312,22 @@ pnpm build
 
 ## Testing
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+このプロジェクトは 3 つのテストレイヤーを持ちます。
+
+| レイヤー | フレームワーク | 対象 | コマンド |
+|---|---|---|---|
+| ユニット・コンポーネント | [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) | ドメインロジック・UI コンポーネント | `pnpm test` |
+| E2E | [Playwright](https://playwright.dev/) | ブラウザ上のユーザー操作 | `pnpm exec playwright test` |
 
 ```bash
+# ユニット・コンポーネントテストを実行
 pnpm test
+
+# E2E テストを実行（初回は dev サーバーが自動起動）
+pnpm exec playwright test
 ```
+
+テスト解説ドキュメント: [`docs/test/`](./docs/test/)
 
 ## Styling
 
