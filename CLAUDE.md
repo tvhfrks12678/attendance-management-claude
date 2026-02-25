@@ -13,6 +13,8 @@ Do NOT start coding until you have read both files completely.
 
 Every task MUST follow this workflow:
 
+> **作業完了の定義**: 実装が終わっても作業完了ではない。`gh pr create` で Pull Request を送信して初めて作業完了とする。PR なしで作業を終了してはならない。`main` への直接コミットも禁止。
+
 ### 0. 作業前の準備（必須）
 
 作業を開始する前に、必ず最新の `main` ブランチに切り替えて最新化する:
