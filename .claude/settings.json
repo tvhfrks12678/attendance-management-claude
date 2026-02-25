@@ -55,6 +55,12 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "Bash(brew:*)",
+      "mcp__browser-playwright__browser_take_screenshot",
+      "mcp__browser-playwright__browser_click",
+      "mcp__browser-playwright__browser_console_messages",
+      "mcp__browser-playwright__browser_wait_for",
+      "mcp__browser-playwright__browser_install",
+      "mcp__browser-playwright__browser_navigate",
       "Edit",
       "Write"
     ]
