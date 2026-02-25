@@ -13,6 +13,15 @@ Do NOT start coding until you have read both files completely.
 
 Every task MUST follow this workflow:
 
+### 0. 作業前の準備（必須）
+
+作業を開始する前に、必ず最新の `main` ブランチに切り替えて最新化する:
+
+```bash
+git switch main
+git pull origin main
+```
+
 ### 1. Issue の確認
 
 - GitHub Issue に基づくタスクの場合、`gh issue view <issue番号>` で内容を確認する
