@@ -1,16 +1,21 @@
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
-import { Separator } from "#/components/ui/separator"
-import { useAttendanceHistory, useTodayAttendance } from "./hooks/useAttendance"
-import { CalendarView } from "./parts/CalendarView"
-import { CurrentTime } from "./parts/CurrentTime"
-import { HistoryTable } from "./parts/HistoryTable"
-import { StatusCard } from "./parts/StatusCard"
-import { useViewModeStore } from "./store/viewModeStore"
+import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { Separator } from "#/components/ui/separator";
+import {
+	useAttendanceHistory,
+	useTodayAttendance,
+} from "./hooks/useAttendance";
+import { CalendarView } from "./parts/CalendarView";
+import { CurrentTime } from "./parts/CurrentTime";
+import { HistoryTable } from "./parts/HistoryTable";
+import { StatusCard } from "./parts/StatusCard";
+import { useViewModeStore } from "./store/viewModeStore";
 
 export function AttendancePage() {
-	const today = useTodayAttendance()
-	const history = useAttendanceHistory()
-	const { viewMode } = useViewModeStore()
+	const today = useTodayAttendance();
+	const history = useAttendanceHistory();
+	const { viewMode } = useViewModeStore();
+	const locale =
+		typeof navigator !== "undefined" ? navigator.language : "ja-JP";
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -45,7 +50,9 @@ export function AttendancePage() {
 					</CardHeader>
 					<CardContent>
 						{history.isPending ? (
-							<p className="text-center text-muted-foreground py-4">読み込み中...</p>
+							<p className="text-center text-muted-foreground py-4">
+								読み込み中...
+							</p>
 						) : history.isError ? (
 							<p className="text-center text-destructive py-4">
 								履歴の取得に失敗しました
@@ -57,7 +64,10 @@ export function AttendancePage() {
 								<>
 									<HistoryTable records={history.data.records} />
 									<Separator className="my-4" />
-									<CalendarView records={history.data.records} />
+									<CalendarView
+										records={history.data.records}
+										locale={locale}
+									/>
 								</>
 							)
 						) : null}
@@ -65,5 +75,5 @@ export function AttendancePage() {
 				</Card>
 			</div>
 		</div>
-	)
+	);
 }
