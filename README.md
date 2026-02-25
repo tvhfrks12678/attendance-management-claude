@@ -11,6 +11,7 @@
 - 言語: TypeScript
 - フレームワーク: TanStack Start（React 19）
 - UI: shadcn/ui + Tailwind CSS v4
+- 関数型プログラミング: Effect-ts
 - インフラ: Cloudflare Workers
 
 
