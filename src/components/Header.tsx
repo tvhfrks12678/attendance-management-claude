@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router'
 
 import { useState } from 'react'
-import { Home, Menu, X } from 'lucide-react'
+import { CalendarDays, Home, LayoutList, Menu, X } from 'lucide-react'
+import { useViewModeStore } from '#/features/attendance/presentation/store/viewModeStore'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const { viewMode, toggleViewMode } = useViewModeStore()
 
   return (
     <>
@@ -25,6 +27,23 @@ export default function Header() {
             />
           </Link>
         </h1>
+        <button
+          onClick={toggleViewMode}
+          className="ml-auto p-2 hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-1.5 text-sm"
+          aria-label={viewMode === "simple" ? "モダンビューに切り替え" : "シンプルビューに切り替え"}
+        >
+          {viewMode === "simple" ? (
+            <>
+              <CalendarDays size={18} />
+              <span className="hidden sm:inline">モダン</span>
+            </>
+          ) : (
+            <>
+              <LayoutList size={18} />
+              <span className="hidden sm:inline">シンプル</span>
+            </>
+          )}
+        </button>
       </header>
 
       <aside
