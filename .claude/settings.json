@@ -50,6 +50,7 @@
       "Bash(touch:*)",
       "Bash(node -e:*)",
       "Bash(npx tsc:*)",
+      "Bash(sed:*)",
       "Bash(curl:*)",
       "Bash(kill:*)",
       "Bash(pkill:*)",
