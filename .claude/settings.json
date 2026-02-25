@@ -53,7 +53,8 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "Bash(brew:*)",
-      "Edit"
+      "Edit",
+      "Write"
     ]
   }
 }

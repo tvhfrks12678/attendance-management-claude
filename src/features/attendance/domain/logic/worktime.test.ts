@@ -1,3 +1,6 @@
+// Option をインポート: calculateWorkDuration が Option<WorkDuration> を返すようになったため、
+// テスト内で Option の値を取り出す API が必要になる
+import { Option } from "effect"
 import { describe, expect, it } from "vitest"
 import { calculateTotalBreakMinutes, calculateWorkDuration, formatDuration } from "./worktime"
 
@@ -7,9 +10,12 @@ describe("calculateWorkDuration", () => {
 			new Date("2026-02-23T09:00:00+09:00"),
 			new Date("2026-02-23T18:00:00+09:00"),
 		)
-		expect(result.totalMinutes).toBe(540)
-		expect(result.hours).toBe(9)
-		expect(result.minutes).toBe(0)
+		// Option.getOrThrow: Option.some() の中の値を取り出す
+		// Option.none() だった場合は例外が投げられる（テストが失敗する）
+		const duration = Option.getOrThrow(result)
+		expect(duration.totalMinutes).toBe(540)
+		expect(duration.hours).toBe(9)
+		expect(duration.minutes).toBe(0)
 	})
 
 	it("9:15〜18:30 → 555分", () => {
@@ -17,9 +23,10 @@ describe("calculateWorkDuration", () => {
 			new Date("2026-02-23T09:15:00+09:00"),
 			new Date("2026-02-23T18:30:00+09:00"),
 		)
-		expect(result.totalMinutes).toBe(555)
-		expect(result.hours).toBe(9)
-		expect(result.minutes).toBe(15)
+		const duration = Option.getOrThrow(result)
+		expect(duration.totalMinutes).toBe(555)
+		expect(duration.hours).toBe(9)
+		expect(duration.minutes).toBe(15)
 	})
 
 	it("日跨ぎ: 23:00〜01:00 → 120分", () => {
@@ -27,7 +34,21 @@ describe("calculateWorkDuration", () => {
 			new Date("2026-02-22T23:00:00+09:00"),
 			new Date("2026-02-23T01:00:00+09:00"),
 		)
-		expect(result.totalMinutes).toBe(120)
+		const duration = Option.getOrThrow(result)
+		expect(duration.totalMinutes).toBe(120)
+	})
+
+	// ── Effect.ts 導入で追加されたテスト ────────────────────────────
+	// clockOut < clockIn（無効な入力）のとき Option.none() が返ることを確認する。
+	// 変更前は負の totalMinutes が返っていたが、
+	// 変更後は型レベルで「計算不能」を表現できるようになった。
+	it("clockOut が clockIn より前 → Option.none()", () => {
+		const result = calculateWorkDuration(
+			new Date("2026-02-23T18:00:00+09:00"),
+			new Date("2026-02-23T09:00:00+09:00"),
+		)
+		// Option.isNone: Option.none() かどうかを確認する述語関数
+		expect(Option.isNone(result)).toBe(true)
 	})
 })
 
