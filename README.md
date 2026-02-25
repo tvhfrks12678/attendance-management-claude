@@ -15,7 +15,7 @@
 - UI: shadcn/ui + Tailwind CSS v4
 - 関数型プログラミング: Effect-ts
 - Test: Vitest React Testing Library Playwright
-- AI: Claude Code
+- AI: Claude Code Codex
 - インフラ: Cloudflare Workers
 
 ## AIエージェント向け: Vercel React Best Practices Skill の導入
