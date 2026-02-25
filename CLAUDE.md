@@ -65,7 +65,7 @@ PR作成後、自分自身でレビューを行う:
 Follow Conventional Commits format:
 
 ```
-<type>(<scope>): <description> #<issue番号>
+<type>(<scope>): [HH:MM:SS] <description> #<issue番号>
 ```
 
 ### Type（必須）
@@ -83,17 +83,23 @@ Follow Conventional Commits format:
 
 変更対象を示す（例: `attendance`, `break`, `claude`, `api`）
 
+### 作業時間（必須）
+
+- 1行目に `[HH:MM:SS]` 形式でそのコミットの作業にかかった時間を記載する
+- description の直前に置く
+- 形式: `[HH:MM:SS]`（例: `[00:45:12]`, `[01:23:43]`）
+
 ### 例
 
-- `feat(break): add break time input feature #42`
-- `fix(attendance): correct total hours calculation #15`
-- `test(break): add unit tests for break time validation #42`
-- `chore(claude): update claude code settings`
+- `feat(break): [00:45:12] add break time input feature #42`
+- `fix(attendance): [00:12:30] correct total hours calculation #15`
+- `test(break): [00:30:00] add unit tests for break time validation #42`
+- `chore(claude): [00:05:00] update claude code settings`
 
 ### ルール
 
 - description は英語で、小文字始まり、末尾にピリオドをつけない
-- 1行目は50文字以内を目安にする
+- 1行目は50文字以内を目安にする（作業時間を含めて調整）
 - 必要に応じて空行の後に本文を追加する
 - GitHub Issue に基づくタスクの場合、description の末尾に `#<issue番号>` を付ける
 - Issue がないタスク（設定変更等）では issue 番号は不要
