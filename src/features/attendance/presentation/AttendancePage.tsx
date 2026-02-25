@@ -15,10 +15,6 @@ export function AttendancePage() {
 	return (
 		<div className="min-h-screen bg-background">
 			<div className="max-w-lg mx-auto px-4 py-8 space-y-6">
-				<div className="text-center">
-					<h1 className="text-2xl font-bold">出勤管理</h1>
-				</div>
-
 				<Card>
 					<CardContent className="pt-6">
 						<CurrentTime />
