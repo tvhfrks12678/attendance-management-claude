@@ -58,7 +58,11 @@ export function AttendancePage() {
 							viewMode === "simple" ? (
 								<HistoryTable records={history.data.records} />
 							) : (
-								<CalendarView records={history.data.records} />
+								<div className="space-y-4">
+									<HistoryTable records={history.data.records} />
+									<Separator />
+									<CalendarView records={history.data.records} />
+								</div>
 							)
 						) : null}
 					</CardContent>
