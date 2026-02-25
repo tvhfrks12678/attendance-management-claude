@@ -15,6 +15,10 @@ Every task MUST follow this workflow:
 
 > **作業完了の定義**: 実装が終わっても作業完了ではない。`gh pr create` で Pull Request を送信して初めて作業完了とする。PR なしで作業を終了してはならない。`main` への直接コミットも禁止。
 
+> **破壊的な git コマンドは毎回ユーザーに確認を取ること（settings.json に追加しない）**:
+> `git reset`, `git checkout .`, `git restore .`, `git clean`, `git push --force` 等。
+> これらは作業中のコードやコミット履歴を失う可能性があるため、"Yes, and don't ask again" を選択してはならない。
+
 ### 0. 作業前の準備（必須）
 
 作業を開始する前に、必ず最新の `main` ブランチに切り替えて最新化する:
