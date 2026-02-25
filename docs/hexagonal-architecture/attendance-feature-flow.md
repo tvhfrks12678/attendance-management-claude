@@ -74,6 +74,45 @@ src/features/attendance
 
 ---
 
+## 4.5 処理の流れは「どこで規定されているか？」
+
+結論として、処理フローは 1 ファイルに全部書かれているわけではなく、**役割ごとに分割して規定**されています。
+
+1. **入口（トリガー）を規定する場所**
+   - `server-fns/*.ts`
+   - どの HTTP メソッドでどのユースケースを呼ぶかを定義します。
+   - 例: `createServerFn({ method: "GET" }).handler(getToday)`
+
+2. **業務手順（ユースケース本体）を規定する場所**
+   - `application/services/attendanceService.ts`
+   - 取得 → 判定 → 保存 → 返却、という「順番」をここで規定します。
+   - つまり「処理の流れ」の中核は application にあります。
+
+3. **判定ルールを規定する場所**
+   - `domain/logic/*.ts`
+   - `canClockIn` など、手順中で使う業務ルールの真偽を規定します。
+   - application はこのルールを呼ぶことで、手順とルールを分離しています。
+
+4. **データの入出力先を規定する場所**
+   - `domain/ports/*.ts` と `infrastructure/*`
+   - 「何ができるか（port）」と「どう実装するか（infrastructure）」を分離して規定します。
+   - 例: `AttendanceRepository`（抽象）と `InMemoryAttendanceRepository`（実装）。
+
+5. **画面からの呼び出し順を規定する場所**
+   - `presentation/hooks/*.ts` と `presentation/*.tsx`
+   - どのタイミングで server-fn を呼ぶか（表示時、ボタン押下時など）を規定します。
+
+要するに、
+
+- **業務フローの順番**は `application/services`、
+- **ルールの中身**は `domain/logic`、
+- **入口と接続**は `server-fns` / `presentation`、
+- **保存や時刻取得の実体**は `infrastructure`
+
+で規定されています。
+
+---
+
 ## 5. 「実際のコード」+ 一行ごとの説明
 
 > 以下は **実コードそのまま**（必要箇所を抜粋）です。
