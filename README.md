@@ -2,7 +2,9 @@
 - 出勤管理サイト
 - AIにコードを書かせて実装（Claude Codeを使用）
 
-<img width="250" height="810" alt="スクリーンショット 2026-02-23 19 51 13" src="https://github.com/user-attachments/assets/b99ce4b2-67a0-4f7f-9296-73781f0a79be" />
+  
+<img width="400" height="801" alt="スクリーンショット 2026-02-25 19 52 07" src="https://github.com/user-attachments/assets/c203a2ab-4c6e-40a8-b063-cb9701f54e45" />
+
 
 # URL
 - [出勤管理](https://attendance-management-claude.tvhfrks12678.workers.dev/)
